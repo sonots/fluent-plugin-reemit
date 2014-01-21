@@ -18,6 +18,10 @@ This example applies [flowcounter](https://github.com/tagomoris/fluent-plugin-fl
 But, the re-emitted messages will skip the identical match directive (the first one) to avoid an infinity loop. 
 
 ```apache
+<match flowcount>
+  type stdout
+</match>
+
 <match **>
   type copy
   <store>
@@ -27,10 +31,6 @@ But, the re-emitted messages will skip the identical match directive (the first 
   <store>
     type reemit
   </store>
-</match>
-
-<match flowcount>
-  type stdout
 </match>
 
 <match **>
