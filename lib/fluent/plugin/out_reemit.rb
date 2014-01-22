@@ -52,7 +52,7 @@ module Fluent
     # </match>
     def ignore_self_match(m, tag)
       return false if m.output == self
-      return false if m.output.class == CopyOutput and m.output.outputs.include?(self)
+      return false if m.output.kind_of?(MultiOutput) and m.output.outputs.include?(self)
       m.match(tag)
     end
   end
