@@ -2,6 +2,11 @@ module Fluent
   class ReemitOutput < Output
     Fluent::Plugin.register_output('reemit', self)
 
+    # To support log_level option implemented by Fluentd v0.10.43
+    unless method_defined?(:log)
+      define_method("log") { $log }
+    end
+
     def initialize
       super
       @match_cache = {}
@@ -15,7 +20,7 @@ module Fluent
       engine_emit(tag, es)
       chain.next
     rescue => e
-      $log.warn "reemit: #{e.class} #{e.message} #{e.backtrace.first}"
+      log.warn "reemit: #{e.class} #{e.message} #{e.backtrace.first}"
     end
 
     private
