@@ -23,8 +23,6 @@ module Fluent
       log.warn "reemit: #{e.class} #{e.message} #{e.backtrace.first}"
     end
 
-    private
-
     # My Engine.emit
     def engine_emit(tag, es)
       target = @match_cache[tag]
@@ -41,8 +39,6 @@ module Fluent
       Engine.matches.find {|m| ignore_self_match(m, tag) }
     end
 
-    # Currently support only
-    #
     # <match foo.bar>
     #   type reemit
     # </match>
@@ -56,9 +52,19 @@ module Fluent
     #   </store>
     # </match>
     def ignore_self_match(m, tag)
-      return false if m.output == self
-      return false if m.output.kind_of?(MultiOutput) and m.output.outputs.include?(self)
+      return false if contain_self?(m.output)
       m.match(tag)
+    end
+
+    def contain_self?(output)
+      if output.kind_of?(MultiOutput)
+        output.outputs.each do |o|
+          return true if contain_self?(o)
+        end
+      else
+        return true if output == self
+      end
+      false
     end
   end
 end
