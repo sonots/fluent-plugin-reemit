@@ -1,3 +1,9 @@
+## 0.0.4 (2014/04/04)
+
+Enhancement:
+
+* Support recursive MultiOutput
+
 ## 0.0.3 (2014/02/04)
 
 Enhancement:
