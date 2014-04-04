@@ -36,7 +36,7 @@ module Fluent
     # My Engine.match
     def engine_match(tag)
       # @matches.find {|m| m.match(tag) } # original Engine.match
-      Engine.matches.find {|m| ignore_self_match(m, tag) }
+      Engine.matches.find {|m| match_without_self(m, tag) }
     end
 
     # <match foo.bar>
@@ -51,7 +51,7 @@ module Fluent
     #     type reemit
     #   </store>
     # </match>
-    def ignore_self_match(m, tag)
+    def match_without_self(m, tag)
       return false if contain_self?(m.output)
       m.match(tag)
     end
