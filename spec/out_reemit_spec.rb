@@ -19,7 +19,7 @@ describe Fluent::ReemitOutput do
       ]
       output = create_driver(config).instance
       reemit = output.outputs.first
-      reemit.contain_self?(output).should be_truthy
+      expect(reemit.contain_self?(output)).to be_truthy
     end
 
     it 'should not contain self' do
@@ -38,7 +38,7 @@ describe Fluent::ReemitOutput do
       ]
       reemit = create_driver(reemit_config).instance.outputs.first
       output = create_driver(noreemit_config).instance
-      reemit.contain_self?(output).should be_falsy
+      expect(reemit.contain_self?(output)).to be_falsy
     end
 
     it 'should contain self in deep' do
@@ -58,7 +58,7 @@ describe Fluent::ReemitOutput do
       ]
       output = create_driver(config).instance
       reemit = output.outputs[1].outputs[1]
-      reemit.contain_self?(output).should be_truthy
+      expect(reemit.contain_self?(output)).to be_truthy
     end
   end
 end
