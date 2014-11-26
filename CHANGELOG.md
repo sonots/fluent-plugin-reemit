@@ -1,3 +1,9 @@
+## 0.1.0 (2014/11/26)
+
+Changes:
+
+* Support fluentd v0.12.pre
+
 ## 0.0.5 (2014/09/22)
 
 Changes:
