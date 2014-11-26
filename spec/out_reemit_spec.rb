@@ -7,8 +7,10 @@ describe Fluent::ReemitOutput do
     Fluent::Test::OutputTestDriver.new(Fluent::CopyOutput, tag).configure(config)
   end
 
-  describe '#contain_self?' do
-    it 'should contain self' do
+  # THIS TEST IS ABSOLUTELY NOT ENOUGH. INSTEAD, RUN
+  # bundle exec fluentd -c examples/reemit.conf
+  describe '#included?' do
+    it 'should be included' do
       config = %[
         <store>
           type reemit
@@ -19,10 +21,10 @@ describe Fluent::ReemitOutput do
       ]
       output = create_driver(config).instance
       reemit = output.outputs.first
-      expect(reemit.contain_self?(output)).to be_truthy
+      expect(reemit.included?(output)).to be_truthy
     end
 
-    it 'should not contain self' do
+    it 'should not be included' do
       reemit_config = %[
         <store>
           type reemit
@@ -38,10 +40,10 @@ describe Fluent::ReemitOutput do
       ]
       reemit = create_driver(reemit_config).instance.outputs.first
       output = create_driver(noreemit_config).instance
-      expect(reemit.contain_self?(output)).to be_falsy
+      expect(reemit.included?(output)).to be_falsy
     end
 
-    it 'should contain self in deep' do
+    it 'should be included in deep' do
       config = %[
         <store>
           type stdout
@@ -58,7 +60,7 @@ describe Fluent::ReemitOutput do
       ]
       output = create_driver(config).instance
       reemit = output.outputs[1].outputs[1]
-      expect(reemit.contain_self?(output)).to be_truthy
+      expect(reemit.included?(output)).to be_truthy
     end
   end
 end

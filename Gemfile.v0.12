@@ -1,0 +1,5 @@
+source "http://rubygems.org"
+
+gemspec
+gem 'fluent-plugin-flowcounter' # for examples
+gem 'fluentd', git: 'git@github.com:fluent/fluentd'
