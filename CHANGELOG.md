@@ -1,3 +1,9 @@
+## 0.2.0 (2015/08/06)
+
+Enhancements:
+
+* support multiple reemit statements for same match (thanks to vijaykramesh)
+
 ## 0.1.0 (2014/11/26)
 
 Changes:
