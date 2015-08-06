@@ -70,21 +70,29 @@ module Fluent
       end
 
       def find(tag)
+        # we want to reemit to the next match after this reemit
+        # this avoids reemiting back to an earlier match that
+        # itself did a reemit to the current match that is reemitting.
         pipeline = nil
+        found_reemit = false
         @match_rules.each_with_index { |rule, i|
           # if rule.match?(tag) # this is the original
-          if rule.match?(tag) and !@reemit.included?(rule.collector)
-            if rule.collector.is_a?(Filter)
-              pipeline ||= Pipeline.new
-              pipeline.add_filter(rule.collector)
-            else
-              if pipeline
-                pipeline.set_output(rule.collector)
+          if rule.match?(tag)
+            if found_reemit && !@reemit.included?(rule.collector)
+              if rule.collector.is_a?(Filter)
+                pipeline ||= Pipeline.new
+                pipeline.add_filter(rule.collector)
               else
-                # Use Output directly when filter is not matched
-                pipeline = rule.collector
+                if pipeline
+                  pipeline.set_output(rule.collector)
+                else
+                  # Use Output directly when filter is not matched
+                  pipeline = rule.collector
+                end
+                return pipeline
               end
-              return pipeline
+            elsif !found_reemit && @reemit.included?(rule.collector)
+              found_reemit = true
             end
           end
         }
@@ -116,8 +124,20 @@ module Fluent
       end
 
       def match(tag)
-        # @matches.find {|m| m.match(tag) } # this is the original
-        @matches.find {|m| m.match(tag) and !@reemit.included?(m.output) }
+        # we want to reemit to the next match after this reemit
+        # this avoids reemiting back to an earlier match that
+        # itself did a reemit to the current match that is reemitting.
+        found_reemit = false
+        @matches.find do |m|
+          if m.match(tag)
+            if found_reemit && !@reemit.included?(m.output)
+              true
+            elsif !found_reemit && @reemit.included?(m.output)
+              found_reemit = true
+              false
+            end
+          end
+        end
       end
     end
   end
