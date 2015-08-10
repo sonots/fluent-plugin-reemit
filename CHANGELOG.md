@@ -1,3 +1,9 @@
+## 0.2.1 (2015/08/11)
+
+Fixes:
+
+* Fix uninitialized constant Fluent::ReemitOutput::V12EventRouter::Pipeline (thanks to tarokkk)
+
 ## 0.2.0 (2015/08/06)
 
 Enhancements:
