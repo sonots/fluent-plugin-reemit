@@ -1,3 +1,5 @@
+require 'fluent/event_router'
+
 module Fluent
   class ReemitOutput < Output
     Fluent::Plugin.register_output('reemit', self)
@@ -80,7 +82,7 @@ module Fluent
           if rule.match?(tag)
             if found_reemit && !@reemit.included?(rule.collector)
               if rule.collector.is_a?(Filter)
-                pipeline ||= Pipeline.new
+                pipeline ||= EventRouter::Pipeline.new
                 pipeline.add_filter(rule.collector)
               else
                 if pipeline
