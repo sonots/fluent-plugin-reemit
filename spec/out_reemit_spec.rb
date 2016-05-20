@@ -1,5 +1,6 @@
 # encoding: UTF-8
 require_relative 'spec_helper'
+require 'fluent/plugin/out_copy'
 
 describe Fluent::ReemitOutput do
   before { Fluent::Test.setup }
