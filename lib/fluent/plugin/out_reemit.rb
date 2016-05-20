@@ -1,4 +1,6 @@
-require 'fluent/event_router'
+if Fluent::VERSION > '0.12'
+  require 'fluent/event_router'
+end
 
 module Fluent
   class ReemitOutput < Output

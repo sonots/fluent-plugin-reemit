@@ -2,4 +2,4 @@ source "http://rubygems.org"
 
 gemspec
 gem 'fluent-plugin-flowcounter' # for examples
-gem 'fluentd', git: 'https://github.com/fluent/fluentd', branch: 'v0.12'
+gem 'fluentd', git: 'https://github.com/fluent/fluentd', branch: 'v0.10'
