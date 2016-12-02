@@ -18,9 +18,14 @@ module Fluent
 
     def start
       super
+      event_router = Engine.instance_variable_get(:@event_router)
       @router =
-        if Engine.instance_variable_get(:@event_router)
-          V12EventRouter.new(self)
+        if event_router
+          if v14?(event_router)
+            V14EventRouter.new(self)
+          else
+            V12EventRouter.new(self)
+          end
         else
           V10Engine.new(self)
         end
@@ -31,6 +36,11 @@ module Fluent
       chain.next
     rescue => e
       log.warn "reemit: #{e.class} #{e.message} #{e.backtrace.first}"
+    end
+
+    def v14?(event_router)
+      default_collector = event_router.instance_variable_get(:@default_collector)
+      default_collector.respond_to?(:emit_events)
     end
 
     def included?(collector)
@@ -109,6 +119,16 @@ module Fluent
         else
           nil
         end
+      end
+    end
+
+    # Almost same as V12EventRouter but it must call #emit_events instead of #emit.
+    class V14EventRouter < V12EventRouter
+      # same
+      def emit_stream(tag, es)
+        match(tag).emit_events(tag, es)
+      rescue => e
+        @emit_error_handler.handle_emits_error(tag, es, e)
       end
     end
 
