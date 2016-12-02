@@ -1,11 +1,18 @@
 # encoding: UTF-8
 require_relative 'spec_helper'
 require 'fluent/plugin/out_copy'
+if Fluent::VERSION > '0.14'
+  require 'fluent/test/driver/multi_output'
+end
 
 describe Fluent::ReemitOutput do
   before { Fluent::Test.setup }
   def create_driver(config, tag = 'test')
-    Fluent::Test::OutputTestDriver.new(Fluent::CopyOutput, tag).configure(config)
+    if Fluent::VERSION > '0.14'
+      Fluent::Test::Driver::MultiOutput.new(Fluent::Plugin::CopyOutput).configure(config)
+    else
+      Fluent::Test::OutputTestDriver.new(Fluent::CopyOutput, tag).configure(config)
+    end
   end
 
   # THIS TEST IS ABSOLUTELY NOT ENOUGH. INSTEAD, RUN
