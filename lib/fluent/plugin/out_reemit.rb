@@ -85,9 +85,8 @@ module Fluent
       end
 
       def find(tag)
-        # we want to reemit to the next match after this reemit
-        # this avoids reemiting back to an earlier match that
-        # itself did a reemit to the current match that is reemitting.
+        # We want to reemit messages to the next `<match>` below this `type reemit`
+        # to avoid reemiting back to an above or current `<match>`
         pipeline = nil
         found_reemit = false
         @match_rules.each_with_index { |rule, i|
@@ -149,9 +148,8 @@ module Fluent
       end
 
       def match(tag)
-        # we want to reemit to the next match after this reemit
-        # this avoids reemiting back to an earlier match that
-        # itself did a reemit to the current match that is reemitting.
+        # We want to reemit messages to the next `<match>` below this `type reemit`
+        # to avoid reemiting back to an above or current `<match>`
         found_reemit = false
         @matches.find do |m|
           if m.match(tag)
