@@ -3,7 +3,7 @@ $:.push File.expand_path('../lib', __FILE__)
 
 Gem::Specification.new do |gem|
   gem.name        = "fluent-plugin-reemit"
-  gem.version     = "0.2.1"
+  gem.version     = "0.3.0"
   gem.authors     = ["Naotoshi Seo"]
   gem.email       = "sonots@gmail.com"
   gem.homepage    = "https://github.com/sonots/fluent-plugin-reemit"
