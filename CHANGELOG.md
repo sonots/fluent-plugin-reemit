@@ -1,3 +1,9 @@
+## 0.3.2 (2017/09/15)
+
+Fixes:
+
+* Fix to work with Fluentd v0.14 Filter Plugin
+
 ## 0.3.1 (2017/09/15)
 
 Fixes:
