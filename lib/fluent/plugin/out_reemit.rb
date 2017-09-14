@@ -14,21 +14,19 @@ module Fluent
 
     def configure(conf)
       super
+
+      major, minor, patch = Fluent::VERSION.split('.').map(&:to_i)
+      if major > 0 || (major == 0 && minor >= 14)
+        @router = V14EventRouter.new(self)
+      elsif major == 0 && minor >= 12
+        @router = V12EventRouter.new(self)
+      else
+        @router = V10EventRouter.new(self)
+      end
     end
 
     def start
       super
-      event_router = Engine.instance_variable_get(:@event_router)
-      @router =
-        if event_router
-          if v14?(event_router)
-            V14EventRouter.new(self)
-          else
-            V12EventRouter.new(self)
-          end
-        else
-          V10Engine.new(self)
-        end
     end
 
     def emit(tag, es, chain)
@@ -36,11 +34,6 @@ module Fluent
       chain.next
     rescue => e
       log.warn "reemit: #{e.class} #{e.message} #{e.backtrace.first}"
-    end
-
-    def v14?(event_router)
-      default_collector = event_router.instance_variable_get(:@default_collector)
-      default_collector.respond_to?(:emit_events)
     end
 
     def included?(collector)
@@ -60,23 +53,23 @@ module Fluent
     class V12EventRouter
       def initialize(reemit)
         @reemit = reemit
-        @event_router = Engine.instance_variable_get(:@event_router)
-        @chain = @event_router.instance_variable_get(:@chain)
-        @emit_error_handler = @event_router.instance_variable_get(:@emit_error_handler)
+        @event_router = Engine.root_agent.event_router
+        @chain = @event_router.instance_variable_get(:@chain) # only v0.12
+        @emit_error_handler = @event_router.emit_error_handler
         @match_rules = @event_router.instance_variable_get(:@match_rules)
-        @default_collector = @event_router.instance_variable_get(:@default_collector)
-        # @match_cache = @event_router.instance_variable_get(:@match_cache)
+        @default_collector = @event_router.default_collector
+        # @match_cache = @event_router.match_cache
         @match_cache = EventRouter::MatchCache.new # need to use a different cache
       end
 
-      # same
+      # copy from fluentd
       def emit_stream(tag, es)
         match(tag).emit(tag, es, @chain)
       rescue => e
         @emit_error_handler.handle_emits_error(tag, es, e)
       end
 
-      # same
+      # copy from fluentd
       def match(tag)
         collector = @match_cache.get(tag) {
           c = find(tag) || @default_collector
@@ -85,8 +78,7 @@ module Fluent
       end
 
       def find(tag)
-        # We want to reemit messages to the next `<match>` below this `type reemit`
-        # to avoid reemiting back to an above or current `<match>`
+        # We want to reemit messages to the **next** `<match>`
         pipeline = nil
         found_reemit = false
         @match_rules.each_with_index { |rule, i|
@@ -123,7 +115,7 @@ module Fluent
 
     # Almost same as V12EventRouter but it must call #emit_events instead of #emit.
     class V14EventRouter < V12EventRouter
-      # same
+      # copy from fluentd
       def emit_stream(tag, es)
         match(tag).emit_events(tag, es)
       rescue => e
@@ -131,7 +123,7 @@ module Fluent
       end
     end
 
-    class V10Engine
+    class V10EventRouter
       def initialize(reemit)
         @reemit = reemit
         @matches = Engine.matches
@@ -148,8 +140,7 @@ module Fluent
       end
 
       def match(tag)
-        # We want to reemit messages to the next `<match>` below this `type reemit`
-        # to avoid reemiting back to an above or current `<match>`
+        # We want to reemit messages to the **next** `<match>`
         found_reemit = false
         @matches.find do |m|
           if m.match(tag)
