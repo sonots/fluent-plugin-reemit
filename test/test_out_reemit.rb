@@ -1,12 +1,14 @@
-# encoding: UTF-8
-require_relative 'spec_helper'
+require_relative 'helper'
 require 'fluent/plugin/out_copy'
 if Fluent::VERSION > '0.14'
   require 'fluent/test/driver/multi_output'
 end
 
-describe Fluent::ReemitOutput do
-  before { Fluent::Test.setup }
+class ReemitOutputTest < Test::Unit::TestCase
+  def setup
+    Fluent::Test.setup
+  end
+
   def create_driver(config, tag = 'test')
     if Fluent::VERSION > '0.14'
       Fluent::Test::Driver::MultiOutput.new(Fluent::Plugin::CopyOutput).configure(config)
@@ -17,8 +19,8 @@ describe Fluent::ReemitOutput do
 
   # THIS TEST IS ABSOLUTELY NOT ENOUGH. INSTEAD, RUN
   # bundle exec fluentd -c examples/reemit.conf
-  describe '#included?' do
-    it 'should be included' do
+  sub_test_case "#include?" do
+    test 'should be included' do
       config = %[
         <store>
           type reemit
@@ -29,10 +31,10 @@ describe Fluent::ReemitOutput do
       ]
       output = create_driver(config).instance
       reemit = output.outputs.first
-      expect(reemit.included?(output)).to be_truthy
+      assert { reemit.included?(output) }
     end
 
-    it 'should not be included' do
+    test 'should not be included' do
       reemit_config = %[
         <store>
           type reemit
@@ -48,10 +50,10 @@ describe Fluent::ReemitOutput do
       ]
       reemit = create_driver(reemit_config).instance.outputs.first
       output = create_driver(noreemit_config).instance
-      expect(reemit.included?(output)).to be_falsy
+      assert { ! reemit.included?(output) }
     end
 
-    it 'should be included in deep' do
+    test 'should be included in deep' do
       config = %[
         <store>
           type stdout
@@ -68,7 +70,7 @@ describe Fluent::ReemitOutput do
       ]
       output = create_driver(config).instance
       reemit = output.outputs[1].outputs[1]
-      expect(reemit.included?(output)).to be_truthy
+      assert { reemit.included?(output) }
     end
   end
 end
