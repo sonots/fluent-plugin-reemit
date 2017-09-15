@@ -2,7 +2,48 @@
 
 [![Build Status](https://secure.travis-ci.org/sonots/fluent-plugin-reemit.png?branch=master)](http://travis-ci.org/sonots/fluent-plugin-reemit)
 
-Fluentd plugin to re-emit messages avoiding infinity match loop
+Fluentd plugin to re-emit messages avoiding infinity match loop to achieve branching of data flow.
+
+**NOTE: I recommend to use built-in label feature to achieve branching of data flow for Fluentd > v0.12. See below**
+
+## Using relabel plugin instead of reemit plugin
+
+Fluentd > v0.12 has the **label** feature. You can achieve branching of data flow without using `reemit` plugin.
+I recommend to use the label feature instead of reemit plugin for Fluentd > v0.12.
+
+```apache
+<source>
+  type forward
+  @label @raw
+</source>
+
+<label @raw>
+  <match **>
+    type copy
+    <store>
+      type flowcounter
+      count_keys *
+      @label @flowcounter
+    </store>
+    <store>
+      type relabel
+      @label @normal
+    </store>
+  </match>
+</label>
+
+<label @flowcounter>
+  <match **>
+    type stdout # results of flowcounter
+  </match>
+</label>
+
+<label @normal>
+  <match **>
+    type stdout # normal flow
+  </match>
+</label>
+```
 
 ## Installation
 
