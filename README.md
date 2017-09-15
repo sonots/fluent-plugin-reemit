@@ -58,6 +58,8 @@ Example:
 This example applies [flowcounter](https://github.com/tagomoris/fluent-plugin-flowcounter) plugin for all messages, then re-emit messages.
 But, the re-emitted messages will skip the identical match directive (the first one) to avoid an infinity loop. 
 
+This enables you to achieve branching of data flow without modifing tags of messages and `match` conditions.
+
 ```apache
 <match flowcount>
   type stdout
